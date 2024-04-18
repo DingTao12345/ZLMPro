@@ -141,6 +141,11 @@ int getMpegIdByCodec(CodecId codec);
 CodecId getCodecByMpegId(int mpeg_id);
 
 /**
+ * 是否是多路复用类型的
+ */
+bool isMultiplex(CodecId codec);
+
+/**
  * 编码信息的抽象接口
  * Abstract interface for encoding information
  
@@ -183,6 +188,11 @@ public:
      * [AUTO-TRANSLATED:a460e432]
      */
     std::string getTrackTypeStr() const;
+
+    /**
+     * 是否多路复用的
+     */
+    bool isMultiplex() const;
 
     /**
      * 设置track index, 用于支持多track

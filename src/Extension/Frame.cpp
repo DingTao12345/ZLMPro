@@ -131,6 +131,10 @@ const char *getCodecName(CodecId codec) {
     }
 }
 
+bool isMultiplex(CodecId codec) {
+    return codec == CodecTS;
+}
+
 #define XX(name, type, value, str, mpeg_id, mp4_id) {str, name},
 static map<string, CodecId, StrCaseCompare> codec_map = { CODEC_MAP(XX) };
 #undef XX
@@ -170,6 +174,10 @@ TrackType CodecInfo::getTrackType() const {
 
 std::string CodecInfo::getTrackTypeStr() const {
     return getTrackString(getTrackType());
+}
+
+bool CodecInfo::isMultiplex() const {
+    return mediakit::isMultiplex(getCodecId());
 }
 
 static size_t constexpr kMaxFrameCacheSize = 100;

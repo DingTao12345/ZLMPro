@@ -12,7 +12,7 @@
 namespace mediakit {
 
 bool TSSegment::isTSPacket(const char *data, size_t len){
-    return len == TS_PACKET_SIZE && ((uint8_t*)data)[0] == TS_SYNC_BYTE;
+    return len % TS_PACKET_SIZE == 0 && ((uint8_t*)data)[0] == TS_SYNC_BYTE;
 }
 
 void TSSegment::setOnSegment(TSSegment::onSegment cb) {

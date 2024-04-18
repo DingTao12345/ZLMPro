@@ -11,6 +11,7 @@
 #include "TsPlayerImp.h"
 #include "HlsPlayer.h"
 #include "Common/config.h"
+#include "Extension/Factory.h"
 
 using namespace std;
 using namespace toolkit;
@@ -21,60 +22,17 @@ TsPlayerImp::TsPlayerImp(const EventPoller::Ptr &poller) : PlayerImp<TsPlayer, P
 
 void TsPlayerImp::onResponseBody(const char *data, size_t len) {
     TsPlayer::onResponseBody(data, len);
-    if (!_decoder && _demuxer) {
-        _decoder = DecoderImp::createDecoder(DecoderImp::decoder_ts, _demuxer.get());
-    }
-
-    if (_decoder && _demuxer) {
-        _decoder->input((uint8_t *) data, len);
-    }
-}
-
-void TsPlayerImp::addTrackCompleted() {
-    PlayerImp<TsPlayer, PlayerBase>::onPlayResult(SockException(Err_success, "play http-ts success"));
+    auto ts = getCurrentMillisecond();
+   _track->inputFrame(Factory::getFrameFromPtr(CodecTS, data, len, ts, ts));
 }
 
 void TsPlayerImp::onPlayResult(const SockException &ex) {
-    auto benchmark_mode = (*this)[Client::kBenchmarkMode].as<int>();
-    if (ex || benchmark_mode) {
-        PlayerImp<TsPlayer, PlayerBase>::onPlayResult(ex);
-    } else {
-        auto demuxer = std::make_shared<HlsDemuxer>();
-        demuxer->start(getPoller(), this);
-        _demuxer = std::move(demuxer);
-    }
-}
-
-void TsPlayerImp::onShutdown(const SockException &ex) {
-    while (_demuxer) {
-        try {
-            // shared_from_this()可能抛异常  [AUTO-TRANSLATED:6af9bd3c]
-            // shared_from_this() may throw an exception
-            std::weak_ptr<TsPlayerImp> weak_self = static_pointer_cast<TsPlayerImp>(shared_from_this());
-            if (_decoder) {
-                _decoder->flush();
-            }
-            // 等待所有frame flush输出后，再触发onShutdown事件  [AUTO-TRANSLATED:93982eb3]
-            // Wait for all frame flush output before triggering the onShutdown event
-            static_pointer_cast<HlsDemuxer>(_demuxer)->pushTask([weak_self, ex]() {
-                if (auto strong_self = weak_self.lock()) {
-                    strong_self->_demuxer = nullptr;
-                    strong_self->onShutdown(ex);
-                }
-            });
-            return;
-        } catch (...) {
-            break;
-        }
-    }
-    PlayerImp<TsPlayer, PlayerBase>::onShutdown(ex);
+    _track = Factory::getTrackByCodecId(CodecTS);
+    PlayerImp<TsPlayer, PlayerBase>::onPlayResult(ex);
 }
 
 vector<Track::Ptr> TsPlayerImp::getTracks(bool ready) const {
-    if (!_demuxer) {
-        return vector<Track::Ptr>();
-    }
-    return static_pointer_cast<HlsDemuxer>(_demuxer)->getTracks(ready);
+    return { _track };
 }
 
 }//namespace mediakit

@@ -129,7 +129,7 @@ private:
     int _ts_download_failed_count = 0;
 };
 
-class HlsPlayerImp : public PlayerImp<HlsPlayer, PlayerBase>, private TrackListener {
+class HlsPlayerImp : public PlayerImp<HlsPlayer, PlayerBase> {
 public:
     using Ptr = std::shared_ptr<HlsPlayerImp>;
     HlsPlayerImp(const toolkit::EventPoller::Ptr &poller = nullptr);
@@ -142,16 +142,9 @@ private:
     //// PlayerBase override////
     void onPlayResult(const toolkit::SockException &ex) override;
     std::vector<Track::Ptr> getTracks(bool ready = true) const override;
-    void onShutdown(const toolkit::SockException &ex) override;
 
 private:
-    //// TrackListener override////
-    bool addTrack(const Track::Ptr &track) override { return true; };
-    void addTrackCompleted() override;
-
-private:
-    DecoderImp::Ptr _decoder;
-    MediaSinkInterface::Ptr _demuxer;
+    Track::Ptr _track;
 };
 
 }//namespace mediakit 

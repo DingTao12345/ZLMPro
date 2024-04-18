@@ -37,6 +37,10 @@ bool MediaSink::addTrack(const Track::Ptr &track_in) {
         WarnL << "All track is ready, add track too late: " << track_in->getCodecName();
         return false;
     }
+    if (track_in->isMultiplex()) {
+        _add_mute_audio = false;
+        _max_track_size = 1;
+    }
     if (_track_map.size() >= _max_track_size) {
         WarnL << "Max track size reached: " << _max_track_size << ", add track ignored:" << track_in->getCodecName();
         return false;

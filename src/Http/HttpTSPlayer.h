@@ -12,7 +12,6 @@
 #define HTTP_HTTPTSPLAYER_H
 
 #include "Http/HttpDownloader.h"
-#include "Player/MediaPlayer.h"
 #include "Rtp/TSDecoder.h"
 
 namespace mediakit {

@@ -10,6 +10,8 @@
 
 #include "HlsPlayer.h"
 #include "Common/config.h"
+#include "Extension/Factory.h"
+
 using namespace std;
 using namespace toolkit;
 
@@ -469,62 +471,17 @@ void HlsDemuxer::onTick() {
 HlsPlayerImp::HlsPlayerImp(const EventPoller::Ptr &poller) : PlayerImp<HlsPlayer, PlayerBase>(poller) {}
 
 void HlsPlayerImp::onPacket(const char *data, size_t len) {
-    if (!_decoder && _demuxer) {
-        _decoder = DecoderImp::createDecoder(DecoderImp::decoder_ts, _demuxer.get());
-    }
-
-    if (_decoder && _demuxer) {
-        _decoder->input((uint8_t *) data, len);
-    }
-}
-
-void HlsPlayerImp::addTrackCompleted() {
-    PlayerImp<HlsPlayer, PlayerBase>::onPlayResult(SockException(Err_success, "play hls success"));
+    auto ts = getCurrentMillisecond();
+    _track->inputFrame(Factory::getFrameFromPtr(CodecTS, data, len, ts, ts));
 }
 
 void HlsPlayerImp::onPlayResult(const SockException &ex) {
-    auto benchmark_mode = (*this)[Client::kBenchmarkMode].as<int>();
-    if (ex || benchmark_mode) {
-        PlayerImp<HlsPlayer, PlayerBase>::onPlayResult(ex);
-    } else {
-        auto demuxer = std::make_shared<HlsDemuxer>();
-        demuxer->start(getPoller(), this);
-        _demuxer = std::move(demuxer);
-    }
-}
-
-void HlsPlayerImp::onShutdown(const SockException &ex) {
-    while (_demuxer) {
-        try {
-            // shared_from_this()可能抛异常  [AUTO-TRANSLATED:c57c464a]
-            // shared_from_this() may throw an exception
-            // shared_from_this() may throw an exception
-            std::weak_ptr<HlsPlayerImp> weak_self = static_pointer_cast<HlsPlayerImp>(shared_from_this());
-            if (_decoder) {
-                _decoder->flush();
-            }
-            // 等待所有frame flush输出后，再触发onShutdown事件  [AUTO-TRANSLATED:6db59f15]
-            // Wait for all frames to be flushed before triggering the onShutdown event
-            // Wait for all frame flush output, then trigger the onShutdown event
-            static_pointer_cast<HlsDemuxer>(_demuxer)->pushTask([weak_self, ex]() {
-                if (auto strong_self = weak_self.lock()) {
-                    strong_self->_demuxer = nullptr;
-                    strong_self->onShutdown(ex);
-                }
-            });
-            return;
-        } catch (...) {
-            break;
-        }
-    }
-    PlayerImp<HlsPlayer, PlayerBase>::onShutdown(ex);
+    _track = Factory::getTrackByCodecId(CodecTS);
+    PlayerImp<HlsPlayer, PlayerBase>::onPlayResult(ex);
 }
 
 vector<Track::Ptr> HlsPlayerImp::getTracks(bool ready) const {
-    if (!_demuxer) {
-        return vector<Track::Ptr>();
-    }
-    return static_pointer_cast<HlsDemuxer>(_demuxer)->getTracks(ready);
+    return { _track };
 }
 
 }//namespace mediakit

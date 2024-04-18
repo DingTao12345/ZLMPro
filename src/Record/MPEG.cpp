@@ -45,6 +45,10 @@ bool MpegMuxer::addTrack(const Track::Ptr &track) {
 }
 
 bool MpegMuxer::inputFrame(const Frame::Ptr &frame) {
+    if (frame->getCodecId() == CodecTS && !_is_ps) {
+        onWrite(frame, frame->dts(), frame->keyFrame());
+        return true;
+    }
     auto it = _tracks.find(frame->getIndex());
     if (it == _tracks.end()) {
         return false;

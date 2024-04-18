@@ -14,10 +14,11 @@
 #include <memory>
 #include <string>
 #include "PlayerBase.h"
+#include "Rtp/Decoder.h"
 
 namespace mediakit {
 
-class MediaPlayer : public PlayerImp<PlayerBase, PlayerBase> {
+class MediaPlayer : public PlayerImp<PlayerBase, PlayerBase>,  private TrackListener, public std::enable_shared_from_this<MediaPlayer>{
 public:
     using Ptr = std::shared_ptr<MediaPlayer>;
 
@@ -27,7 +28,22 @@ public:
     toolkit::EventPoller::Ptr getPoller();
     void setOnCreateSocket(toolkit::Socket::onCreateSocket cb);
 
+    //// PlayerBase override////
+    std::vector<Track::Ptr> getTracks(bool ready = true) const override;
+    void onShutdown(const toolkit::SockException &ex) override;
+    void onPlayResult(const toolkit::SockException &ex) override;
+
 private:
+    //// TrackListener override////
+    bool addTrack(const Track::Ptr &track) override { return true; };
+    void addTrackCompleted() override;
+
+    void onFrame(const Frame::Ptr &frame);
+
+private:
+    bool _demux_frame = true;
+    DecoderImp::Ptr _decoder;
+    MediaSinkInterface::Ptr _demuxer;
     toolkit::EventPoller::Ptr _poller;
     toolkit::Socket::onCreateSocket _on_create_socket;
 };

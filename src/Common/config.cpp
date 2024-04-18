@@ -136,6 +136,7 @@ const string kRtspDemand = string(kFieldName) + "rtsp_demand";
 const string kRtmpDemand = string(kFieldName) + "rtmp_demand";
 const string kTSDemand = string(kFieldName) + "ts_demand";
 const string kFMP4Demand = string(kFieldName) + "fmp4_demand";
+const string kDemuxFrame = string(kFieldName) + "demux_frame";
 
 static onceToken token([]() {
     mINI::Instance()[kModifyStamp] = (int)ProtocolOption::kModifyStampRelative;
@@ -396,6 +397,7 @@ const string kWaitTrackReady = "wait_track_ready";
 const string kPlayTrack = "play_track";
 const string kProxyUrl = "proxy_url";
 const string kRtspSpeed = "rtsp_speed";
+const string kDemuxFrame = "demux_frame";
 const string kLatency = "latency";
 const string kPassPhrase = "passPhrase";
 } // namespace Client

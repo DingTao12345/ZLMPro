@@ -16,7 +16,7 @@
 
 namespace mediakit {
 
-class TsPlayerImp : public PlayerImp<TsPlayer, PlayerBase>, private TrackListener {
+class TsPlayerImp : public PlayerImp<TsPlayer, PlayerBase> {
 public:
     using Ptr = std::shared_ptr<TsPlayerImp>;
 
@@ -30,16 +30,9 @@ private:
     //// PlayerBase override////
     void onPlayResult(const toolkit::SockException &ex) override;
     std::vector<Track::Ptr> getTracks(bool ready = true) const override;
-    void onShutdown(const toolkit::SockException &ex) override;
 
 private:
-    //// TrackListener override////
-    bool addTrack(const Track::Ptr &track) override { return true; };
-    void addTrackCompleted() override;
-
-private:
-    DecoderImp::Ptr _decoder;
-    MediaSinkInterface::Ptr _demuxer;
+    Track::Ptr _track;
 };
 
 }//namespace mediakit

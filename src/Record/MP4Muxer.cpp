@@ -52,7 +52,9 @@ void MP4MuxerInterface::saveSegment() {
 }
 
 void MP4MuxerInterface::initSegment() {
-    mp4_writer_init_segment(_mov_writter.get());
+    if (!_tracks.empty()) {
+        mp4_writer_init_segment(_mov_writter.get());
+    }
 }
 
 bool MP4MuxerInterface::haveVideo() const {

@@ -57,10 +57,7 @@ struct TranslationInfo
     }
 };
 
-class PlayerProxy
-    : public MediaPlayer
-    , public MediaSourceEvent
-    , public std::enable_shared_from_this<PlayerProxy> {
+class PlayerProxy : public MediaPlayer, public MediaSourceEvent {
 public:
     using Ptr = std::shared_ptr<PlayerProxy>;
 

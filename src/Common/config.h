@@ -572,7 +572,7 @@ extern const std::string kUdpRecvSocketBuffer;
  * Rtsp/rtmp player, pusher related settings name,
  * These settings are not used in the configuration file
  * Only used to set a specific player or pusher instance
- 
+
  * [AUTO-TRANSLATED:59086953]
  */
 namespace Client {
@@ -621,7 +621,9 @@ extern const std::string kPlayTrack;
 // 设置代理url，目前只支持http协议  [AUTO-TRANSLATED:c84918cc]
 // Set proxy url, currently only supports http protocol
 extern const std::string kProxyUrl;
-// 设置开始rtsp倍速播放  [AUTO-TRANSLATED:5db03cad]
+// 是否解复用帧(mpegts/ps时有效)，默认true
+extern const std::string kDemuxFrame;
+//设置开始rtsp倍速播放  [AUTO-TRANSLATED:5db03cad]
 // Set the start RTSP playback speed
 extern const std::string kRtspSpeed;
 // Set SRT delay

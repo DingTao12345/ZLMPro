@@ -77,6 +77,11 @@ bool CommonRtpEncoder::inputFrame(const Frame::Ptr &frame){
     auto len = frame->size() - frame->prefixSize();
     auto remain_size = len;
     auto max_size = getRtpInfo().getMaxSize();
+    if (frame->getCodecId() == CodecTS) {
+        // 确保ts rtp负载部分长度是188的倍数
+        max_size -= getRtpInfo().getMaxSize() % 188;
+    }
+
     bool is_key = frame->keyFrame();
     bool mark = false;
     while (remain_size > 0) {

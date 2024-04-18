@@ -103,7 +103,7 @@ static int getMaxTrackSize(const std::string &url) {
 
 void PlayerProxy::play(const string &strUrlTmp) {
     _option.max_track = getMaxTrackSize(strUrlTmp);
-    weak_ptr<PlayerProxy> weakSelf = shared_from_this();
+    weak_ptr<PlayerProxy> weakSelf = static_pointer_cast<PlayerProxy>(shared_from_this());
     std::shared_ptr<int> piFailedCnt(new int(0)); // 连续播放失败次数
     setOnPlayResult([weakSelf, strUrlTmp, piFailedCnt](const SockException &err) {
         auto strongSelf = weakSelf.lock();
@@ -233,7 +233,7 @@ PlayerProxy::~PlayerProxy() {
 
 void PlayerProxy::rePlay(const string &strUrl, int iFailedCnt) {
     auto iDelay = MAX(_reconnect_delay_min * 1000, MIN(iFailedCnt * _reconnect_delay_step * 1000, _reconnect_delay_max * 1000));
-    weak_ptr<PlayerProxy> weakSelf = shared_from_this();
+    weak_ptr<PlayerProxy> weakSelf = static_pointer_cast<PlayerProxy>(shared_from_this());
     _timer = std::make_shared<Timer>(
         iDelay / 1000.0f,
         [weakSelf, strUrl, iFailedCnt]() {
@@ -324,7 +324,7 @@ void PlayerProxy::onPlaySuccess() {
             _muxer = std::make_shared<MultiMediaSourceMuxer>(_tuple, getDuration(), _option);
         }
     }
-    _muxer->setMediaListener(shared_from_this());
+    _muxer->setMediaListener(static_pointer_cast<PlayerProxy>(shared_from_this()));
 
     auto videoTrack = getTrack(TrackVideo, false);
     if (videoTrack) {
