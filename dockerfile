@@ -1,5 +1,6 @@
 FROM ubuntu:20.04 AS build
-ARG MODEL
+ARG MODEL=Release
+ARG RELEASE_VERSION=OFF
 #shell,rtmp,rtsp,rtsps,http,https,rtp
 EXPOSE 1935/tcp
 EXPOSE 554/tcp
@@ -25,8 +26,13 @@ RUN apt-get update && \
          ca-certificates \
          tzdata \
          libssl-dev \
+         libmysqlclient-dev \
+         libx264-dev \
+         libfaac-dev \
          gcc \
          g++ \
+         libavcodec-dev libavutil-dev libswscale-dev libresample-dev libavformat-dev libpostproc-dev libavfilter-dev libsdl-dev libswresample-dev \
+         libsdl-dev libusrsctp-dev \
          gdb && \
          apt-get autoremove -y && \
          apt-get clean -y && \
@@ -47,7 +53,7 @@ RUN wget https://github.com/cisco/libsrtp/archive/v2.3.0.tar.gz -O libsrtp-2.3.0
 RUN mkdir -p build release/linux/${MODEL}/
 
 WORKDIR /opt/media/ZLMediaKit/build
-RUN cmake -DCMAKE_BUILD_TYPE=${MODEL} -DENABLE_WEBRTC=true -DENABLE_FFMPEG=true -DENABLE_TESTS=false -DENABLE_API=false .. && \
+RUN cmake -DCMAKE_BUILD_TYPE=${MODEL} -DRELEASE_VERSION=${RELEASE_VERSION} -DENABLE_WEBRTC=true -DENABLE_FFMPEG=true -DENABLE_TESTS=false -DENABLE_API=false .. && \
     make -j $(nproc)
 
 FROM ubuntu:20.04
@@ -64,9 +70,13 @@ RUN apt-get update && \
          tzdata \
          curl \
          libssl-dev \
+         libx264-dev \
+         libfaac-dev \
          ffmpeg \
          gcc \
          g++ \
+         libavcodec-dev libavutil-dev libswscale-dev libresample-dev libavformat-dev libpostproc-dev libavfilter-dev libsdl-dev libswresample-dev \
+         libsdl-dev libusrsctp-dev \
          gdb && \
          apt-get autoremove -y && \
          apt-get clean -y && \

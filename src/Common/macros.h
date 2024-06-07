@@ -75,6 +75,7 @@
 namespace mediakit {
 
 extern const char kServerName[];
+extern const char kTryVersionInfo[];
 
 template <typename... ARGS>
 void Assert_ThrowCpp(int failed, const char *exp, const char *func, const char *file, int line, ARGS &&...args) {

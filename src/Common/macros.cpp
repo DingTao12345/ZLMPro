@@ -35,4 +35,6 @@ const char kServerName[] =  "ZLMediaKit-8.0(build in " __DATE__ " " __TIME__ ")"
 const char kServerName[] = "ZLMediaKit(git hash:" COMMIT_HASH "/" COMMIT_TIME ",branch:" BRANCH_NAME ",build time:" BUILD_TIME ")";
 #endif
 
+const char kTryVersionInfo[] = "您正在运行试用版本(https://github.com/ziyuexiachu/ci/issues/2)，程序将限制流时长与性能，购买正式版本请联系1213642868@qq.com";
+
 }//namespace mediakit

@@ -478,6 +478,15 @@ int start_main(int argc,char *argv[]) {
             g_reload_certificates();
         });
 #endif
+
+#if !defined(RELEASE_VERSION)
+        // 试用模式，每个流最多存活3分钟
+        WarnL << kTryVersionInfo;
+        EventPollerPool::Instance().getPoller()->doDelayTask(30  * 60 * 1000, []() {
+            MediaSource::for_each_media([](const MediaSource::Ptr &src) { src->close(true); });
+            return 30  * 60 * 1000;
+        });
+#endif
         sem.wait();
     }
     unInstallWebApi();
