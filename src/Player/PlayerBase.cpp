@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include "PlayerBase.h"
+#include "UdpPlayerImp.h"
 #include "Rtsp/RtspPlayerImp.h"
 #include "Rtmp/RtmpPlayerImp.h"
 #include "Rtmp/FlvPlayer.h"
@@ -77,6 +78,9 @@ PlayerBase::Ptr PlayerBase::createPlayer(const EventPoller::Ptr &in_poller, cons
         if (end_with(url, ".flv") || end_with(url_in, ".flv")) {
             return PlayerBase::Ptr(new FlvPlayerImp(poller), release_func);
         }
+    }
+    if (strcasecmp("rtp", prefix.data()) == 0 || strcasecmp("udp", prefix.data()) == 0) {
+        return PlayerBase::Ptr(new UdpPlayerImp(poller), release_func);
     }
 
 #ifdef ENABLE_SRT

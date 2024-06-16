@@ -90,7 +90,7 @@ TSDecoder::~TSDecoder() {
 }
 
 ssize_t TSDecoder::input(const uint8_t *data, size_t bytes) {
-    if (TSSegment::isTSPacket((char *)data, bytes)) {
+    if (bytes == TS_PACKET_SIZE && TSSegment::isTSPacket((char *)data, bytes)) {
         return ts_demuxer_input(_demuxer_ctx, (uint8_t *) data, bytes);
     }
     try {
