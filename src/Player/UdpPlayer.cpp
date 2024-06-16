@@ -77,7 +77,7 @@ void UdpPlayer::play_l(const string &url) {
         _rtp_decoder = Factory::getRtpDecoderByCodecId(CodecTS);
         CHECK(_rtp_decoder);
         _rtp_decoder->addDelegate([this](const Frame::Ptr &frame) {
-            onTSPacket_l(frame, frame->pts());
+            onTSPacket_l(frame, frame->pts(), frame->cacheAble());
             return true;
         });
     }
@@ -145,16 +145,21 @@ void UdpPlayer::onData(const toolkit::Buffer::Ptr &buf) {
     if (_rtp_decoder) {
         handleOneRtp(0, TrackVideo, 90000, (uint8_t *)buf->data(), buf->size());
     } else {
-        onTSPacket_l(buf, 0);
+        onTSPacket_l(buf, 0, false);
     }
 }
 
-void UdpPlayer::onTSPacket_l(const toolkit::Buffer::Ptr &buf, int64_t dts) {
+void UdpPlayer::onTSPacket_l(toolkit::Buffer::Ptr buf, int64_t dts, bool buffer_cache_able) {
     if (_wait_frame) {
         _wait_frame = false;
         onPlayResult(SockException());
     }
     _frame_ticker.resetTime();
+    if (!buffer_cache_able) {
+        auto copy_able = BufferRaw::create();
+        copy_able->assign(buf->data(), buf->size());
+        buf = copy_able;
+    }
     onTSPacket(buf, dts);
 }
 

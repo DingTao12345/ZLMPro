@@ -41,7 +41,7 @@ private:
     void teardown_l();
     void play_l(const std::string &url);
     void onData(const toolkit::Buffer::Ptr &buf);
-    void onTSPacket_l(const toolkit::Buffer::Ptr &buf, int64_t dts);
+    void onTSPacket_l(toolkit::Buffer::Ptr buf, int64_t dts, bool buffer_cache_able);
     bool onManager();
 
 private:
