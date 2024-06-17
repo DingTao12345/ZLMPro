@@ -74,7 +74,8 @@ void MediaPlayer::onFrame(const Frame::Ptr &frame) {
 
 void MediaPlayer::onPlayResult(const toolkit::SockException &ex) {
     _demux_frame = (*this)[Client::kDemuxFrame];
-    auto track = PlayerImp<PlayerBase, PlayerBase>::getTracks(false).front();
+    auto tracks = PlayerImp<PlayerBase, PlayerBase>::getTracks(false);
+    auto track = tracks.empty() ? nullptr : tracks.front();
     if (_demux_frame && track && track->getCodecId() == CodecTS) {
         auto benchmark_mode = (*this)[Client::kBenchmarkMode].as<int>();
         if (ex || benchmark_mode) {
