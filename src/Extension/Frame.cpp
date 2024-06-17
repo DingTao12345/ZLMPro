@@ -132,7 +132,7 @@ const char *getCodecName(CodecId codec) {
 }
 
 bool isMultiplex(CodecId codec) {
-    return codec == CodecTS;
+    return codec == CodecTS || codec == CodecPS;
 }
 
 #define XX(name, type, value, str, mpeg_id, mp4_id) {str, name},

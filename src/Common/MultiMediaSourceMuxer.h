@@ -22,6 +22,7 @@
 #include "Rtmp/RtmpMediaSourceMuxer.h"
 #include "TS/TSMediaSourceMuxer.h"
 #include "FMP4/FMP4MediaSourceMuxer.h"
+#include "Rtp/Decoder.h"
 
 namespace mediakit {
 
@@ -37,13 +38,13 @@ public:
     };
 
     MultiMediaSourceMuxer(const MediaTuple& tuple, float dur_sec = 0.0,const ProtocolOption &option = ProtocolOption());
-
+    ~MultiMediaSourceMuxer();
     /**
      * 设置事件监听器
      * @param listener 监听器
      * Set event listener
      * @param listener Listener
-     
+
      * [AUTO-TRANSLATED:d829419b]
      */
     void setMediaListener(const std::weak_ptr<MediaSourceEvent> &listener);
@@ -53,7 +54,7 @@ public:
       * @param listener 事件监听器
       * Set Track ready event listener
       * @param listener Event listener
-      
+
       * [AUTO-TRANSLATED:64262ac5]
      */
     void setTrackListener(const std::weak_ptr<Listener> &listener);
@@ -61,7 +62,7 @@ public:
     /**
      * 返回总的消费者个数
      * Return the total number of consumers
-     
+
      * [AUTO-TRANSLATED:5eaac131]
      */
     int totalReaderCount() const;
@@ -69,7 +70,7 @@ public:
     /**
      * 判断是否生效(是否正在转其他协议)
      * Determine whether it is effective (whether it is being converted to another protocol)
-     
+
      * [AUTO-TRANSLATED:ca92165c]
      */
     bool isEnabled();
@@ -79,17 +80,18 @@ public:
      * @param stamp 时间戳
      * Set MediaSource timestamp
      * @param stamp Timestamp
-     
+
      * [AUTO-TRANSLATED:a75cc2fa]
      */
     void setTimeStamp(uint32_t stamp);
 
-    /**
-     * 重置track
-     * Reset track
-     
-     * [AUTO-TRANSLATED:95dc0b4f]
-     */
+    /////////////////////////////////MediaSink override/////////////////////////////////
+    void flush() override;
+
+    bool inputFrame(const Frame::Ptr &frame) override;
+
+    bool addTrack(const Track::Ptr &frame) override;
+
     void resetTracks() override;
 
     /////////////////////////////////MediaSourceEvent override/////////////////////////////////
@@ -101,7 +103,7 @@ public:
      * Total number of viewers
      * @param sender Event sender
      * @return Total number of viewers
-     
+
      * [AUTO-TRANSLATED:f4d7146c]
      */
     int totalReaderCount(MediaSource &sender) override;
@@ -117,7 +119,7 @@ public:
      * @param start Start or stop
      * @param custom_path Specify a custom path when recording is enabled
      * @return Whether the setting is successful
-     
+
      * [AUTO-TRANSLATED:cb1fd8a9]
      */
     bool setupRecord(MediaSource &sender, Recorder::type type, bool start, const std::string &custom_path, size_t max_second) override;
@@ -129,7 +131,7 @@ public:
      * Get recording status
      * @param type Recording type
      * @return Recording status
-     
+
      * [AUTO-TRANSLATED:798afa71]
      */
     bool isRecording(MediaSource &sender, Recorder::type type) override;
@@ -147,7 +149,7 @@ public:
      * @param ssrc rtp's ssrc
      * @param is_udp Whether it is udp
      * @param cb Start success or failure callback
-     
+
      * [AUTO-TRANSLATED:620416c2]
      */
     void startSendRtp(MediaSource &sender, const MediaSourceEvent::SendRtpArgs &args, const std::function<void(uint16_t, const toolkit::SockException &)> cb) override;
@@ -157,7 +159,7 @@ public:
      * @return 是否成功
      * Stop ps-rtp sending
      * @return Whether it is successful
-     
+
      * [AUTO-TRANSLATED:b91e2055]
      */
     bool stopSendRtp(MediaSource &sender, const std::string &ssrc) override;
@@ -169,7 +171,7 @@ public:
      * Get all Tracks
      * @param trackReady Whether to filter out unready tracks
      * @return All Tracks
-     
+
      * [AUTO-TRANSLATED:53755f5d]
      */
     std::vector<Track::Ptr> getMediaTracks(MediaSource &sender, bool trackReady = true) const override;
@@ -177,7 +179,7 @@ public:
     /**
      * 获取所属线程
      * Get the thread it belongs to
-     
+
      * [AUTO-TRANSLATED:a4dc847e]
      */
     toolkit::EventPoller::Ptr getOwnerPoller(MediaSource &sender) override;
@@ -185,7 +187,7 @@ public:
     /**
      * 获取本对象
      * Get this object
-     
+
      * [AUTO-TRANSLATED:5e119bb3]
      */
     std::shared_ptr<MultiMediaSourceMuxer> getMuxer(MediaSource &sender) const override;
@@ -206,7 +208,7 @@ protected:
      * A certain track is ready, its ready() status returns true,
      * This means that you can get information such as sps pps, etc.
      * @param track
-     
+
      * [AUTO-TRANSLATED:05659d48]
     */
     bool onTrackReady(const Track::Ptr & track) override;
@@ -214,7 +216,7 @@ protected:
     /**
      * 所有Track已经准备好，
      * All Tracks are ready,
-     
+
      * [AUTO-TRANSLATED:c54d02e2]
      */
     void onAllTrackReady() override;
@@ -224,7 +226,7 @@ protected:
      * @param frame
      * A certain Track outputs a frame, this method will be called after onAllTrackReady is triggered
      * @param frame
-     
+
      * [AUTO-TRANSLATED:debbd247]
      */
     bool onTrackFrame(const Frame::Ptr &frame) override;
@@ -255,7 +257,7 @@ private:
     HlsFMP4Recorder::Ptr _hls_fmp4;
     toolkit::EventPoller::Ptr _poller;
     RingType::Ptr _ring;
-
+    DecoderImp::Ptr _decoder;
     // 对象个数统计  [AUTO-TRANSLATED:3b43e8c2]
     // Object count statistics
     toolkit::ObjectStatistic<MultiMediaSourceMuxer> _statistic;

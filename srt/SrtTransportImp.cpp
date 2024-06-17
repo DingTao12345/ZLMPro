@@ -66,7 +66,7 @@ void SrtTransportImp::onHandShakeFinished(std::string &streamid, struct sockaddr
     auto kv = Parser::parseArgs(_media_info.params);
     if (kv["m"] == "publish") {
         _is_pusher = true;
-        _decoder = DecoderImp::createDecoder(DecoderImp::decoder_ts, this);
+        _decoder = DecoderImp::createDecoder(CodecTS, this);
         emitOnPublish();
     } else {
         _is_pusher = false;

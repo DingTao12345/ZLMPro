@@ -145,6 +145,7 @@ static onceToken token([]() {
     mINI::Instance()[kContinuePushMS] = 15000;
     mINI::Instance()[kPacedSenderMS] = 0;
     mINI::Instance()[kAutoClose] = 0;
+    mINI::Instance()[kDemuxFrame] = 1;
 
     mINI::Instance()[kEnableHls] = 1;
     mINI::Instance()[kEnableHlsFmp4] = 0;

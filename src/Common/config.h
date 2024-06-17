@@ -290,6 +290,8 @@ extern const std::string kContinuePushMS;
 // 该配置开启后可以解决一些流发送不平滑导致zlmediakit转发也不平滑的问题  [AUTO-TRANSLATED:0f2b1657]
 // Enabling this configuration can solve some problems where the stream is not sent smoothly, resulting in ZLMediaKit forwarding not being smooth
 extern const std::string kPacedSenderMS;
+// 是否解复用ts/ps的帧
+extern const std::string kDemuxFrame;
 
 // 是否开启转换为hls(mpegts)  [AUTO-TRANSLATED:bfc1167a]
 // Whether to enable conversion to HLS (MPEGTS)

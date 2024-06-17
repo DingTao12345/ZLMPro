@@ -65,7 +65,7 @@ void MediaPlayer::onShutdown(const toolkit::SockException &ex) {
 
 void MediaPlayer::onFrame(const Frame::Ptr &frame) {
     if (!_decoder && _demuxer) {
-        _decoder = DecoderImp::createDecoder(DecoderImp::decoder_ts, _demuxer.get());
+        _decoder = DecoderImp::createDecoder(CodecTS, _demuxer.get());
     }
     if (_decoder && _demuxer) {
         _decoder->input((uint8_t *)frame->data(), frame->size());

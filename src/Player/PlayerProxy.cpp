@@ -40,6 +40,8 @@ PlayerProxy::PlayerProxy(
     _live_status = 1;
     _repull_count = 0;
     (*this)[Client::kWaitTrackReady] = false;
+    // 播放器不解复用帧，在MultiMediaSourceMuxer中选择是否解复用帧
+    (*this)[Client::kDemuxFrame] = false;
 }
 
 void PlayerProxy::setPlayCallbackOnce(function<void(const SockException &ex)> cb) {

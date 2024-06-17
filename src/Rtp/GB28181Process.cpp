@@ -191,12 +191,12 @@ void GB28181Process::onRtpDecode(const Frame::Ptr &frame) {
             // 猜测是ts负载  [AUTO-TRANSLATED:c2be3a47]
             // Guess it is a ts payload
             InfoL << _media_info.stream << " judged to be TS";
-            _decoder = DecoderImp::createDecoder(DecoderImp::decoder_ts, _interface);
+            _decoder = DecoderImp::createDecoder(CodecTS, _interface);
         } else {
             // 猜测是ps负载  [AUTO-TRANSLATED:b7c0ff45]
             // Guess it is a ps payload
             InfoL << _media_info.stream << " judged to be PS";
-            _decoder = DecoderImp::createDecoder(DecoderImp::decoder_ps, _interface);
+            _decoder = DecoderImp::createDecoder(CodecPS, _interface);
         }
     }
 

@@ -234,6 +234,52 @@ MultiMediaSourceMuxer::MultiMediaSourceMuxer(const MediaTuple& tuple, float dur_
     enableMuteAudio(option.add_mute_audio);
 }
 
+MultiMediaSourceMuxer::~MultiMediaSourceMuxer() {
+    flush();
+}
+
+void MultiMediaSourceMuxer::flush() {
+    if (_decoder) {
+        _decoder->flush();
+    }
+    if (_rtmp) {
+        _rtmp->flush();
+    }
+    if (_rtsp) {
+        _rtsp->flush();
+    }
+    if (_ts) {
+        _ts->flush();
+    }
+    if (_fmp4) {
+        _fmp4->flush();
+    }
+    if (_hls_fmp4) {
+        _hls_fmp4->flush();
+    }
+    if (_hls) {
+        _hls->flush();
+    }
+    if (_mp4) {
+        _mp4->flush();
+    }
+}
+
+bool MultiMediaSourceMuxer::inputFrame(const Frame::Ptr &frame) {
+    if (_decoder && frame->isMultiplex()) {
+        return _decoder->input((uint8_t *)frame->data(), frame->size());
+    }
+    return MediaSink::inputFrame(frame);
+}
+
+bool MultiMediaSourceMuxer::addTrack(const Track::Ptr &track) {
+    if (track->isMultiplex() && _option.demux_frame) {
+        _decoder = DecoderImp::createDecoder(track->getCodecId(), this);
+        return true;
+    }
+    return MediaSink::addTrack(track);
+}
+
 void MultiMediaSourceMuxer::setMediaListener(const std::weak_ptr<MediaSourceEvent> &listener) {
     setDelegate(listener);
 

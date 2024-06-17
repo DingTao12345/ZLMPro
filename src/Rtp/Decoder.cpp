@@ -29,9 +29,9 @@ void Decoder::setOnStream(Decoder::onStream cb) {
     _on_stream = std::move(cb);
 }
     
-static Decoder::Ptr createDecoder_l(DecoderImp::Type type) {
+static Decoder::Ptr createDecoder_l(CodecId type) {
     switch (type){
-        case DecoderImp::decoder_ps:
+        case CodecPS:
 #ifdef ENABLE_RTPPROXY
             return std::make_shared<PSDecoder>();
 #else
@@ -39,7 +39,7 @@ static Decoder::Ptr createDecoder_l(DecoderImp::Type type) {
             return nullptr;
 #endif//ENABLE_RTPPROXY
 
-        case DecoderImp::decoder_ts:
+        case CodecTS:
 #ifdef ENABLE_HLS
             return std::make_shared<TSDecoder>();
 #else
@@ -53,7 +53,7 @@ static Decoder::Ptr createDecoder_l(DecoderImp::Type type) {
 
 /////////////////////////////////////////////////////////////
 
-DecoderImp::Ptr DecoderImp::createDecoder(Type type, MediaSinkInterface *sink){
+DecoderImp::Ptr DecoderImp::createDecoder(CodecId type, MediaSinkInterface *sink){
     auto decoder =  createDecoder_l(type);
     if(!decoder){
         return nullptr;

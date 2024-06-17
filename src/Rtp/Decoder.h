@@ -39,11 +39,9 @@ protected:
 
 class DecoderImp {
 public:
-    typedef enum { decoder_ts = 0, decoder_ps } Type;
-
     using Ptr = std::shared_ptr<DecoderImp>;
 
-    static Ptr createDecoder(Type type, MediaSinkInterface *sink);
+    static Ptr createDecoder(CodecId type, MediaSinkInterface *sink);
     ssize_t input(const uint8_t *data, size_t bytes);
     void flush();
 
