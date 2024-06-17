@@ -3,6 +3,7 @@
 #include "Common/Parser.h"
 #include "Common/config.h"
 #include "SrtTransportImp.hpp"
+#include "Extension/Factory.h"
 
 namespace SRT {
 SrtTransportImp::SrtTransportImp(const EventPoller::Ptr &poller)
@@ -66,7 +67,7 @@ void SrtTransportImp::onHandShakeFinished(std::string &streamid, struct sockaddr
     auto kv = Parser::parseArgs(_media_info.params);
     if (kv["m"] == "publish") {
         _is_pusher = true;
-        _decoder = DecoderImp::createDecoder(CodecTS, this);
+        addTrack(Factory::getTrackByCodecId(CodecTS));
         emitOnPublish();
     } else {
         _is_pusher = false;
@@ -129,19 +130,8 @@ void SrtTransportImp::onSRTData(DataPacket::Ptr pkt) {
         WarnP(this) << "this is a player data ignore";
         return;
     }
-    if (_decoder) {
-        _decoder->input(reinterpret_cast<const uint8_t *>(pkt->payloadData()), pkt->payloadSize());
-        //TraceL<<" size "<<pkt->payloadSize();
-    } else {
-        WarnP(this) << " not reach this";
-    }
-}
 
-void SrtTransportImp::onShutdown(const SockException &ex) {
-    if (_decoder) {
-        _decoder->flush();
-    }
-    SrtTransport::onShutdown(ex);
+    inputFrame(Factory::getFrameFromPtr(CodecTS, pkt->payloadData(), pkt->payloadSize(), pkt->timestamp, pkt->timestamp));
 }
 
 bool SrtTransportImp::close(mediakit::MediaSource &sender) {
@@ -334,15 +324,6 @@ bool SrtTransportImp::addTrack(const Track::Ptr &track) {
     lock_guard<recursive_mutex> lck(_func_mtx);
     _cached_func.emplace_back([this, track]() { _muxer->addTrack(track); });
     return true;
-}
-
-void SrtTransportImp::addTrackCompleted() {
-    if (_muxer) {
-        _muxer->addTrackCompleted();
-    } else {
-        lock_guard<recursive_mutex> lck(_func_mtx);
-        _cached_func.emplace_back([this]() { _muxer->addTrackCompleted(); });
-    }
 }
 
 void SrtTransportImp::doCachedFunc() {

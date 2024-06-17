@@ -40,7 +40,6 @@ protected:
     float getTimeOutSec() override;
     std::string getPassphrase() override;
     void onSRTData(DataPacket::Ptr pkt) override;
-    void onShutdown(const SockException &ex) override;
     void onHandShakeFinished(std::string &streamid, struct sockaddr_storage *addr) override;
 
     void sendPacket(Buffer::Ptr pkt, bool flush = true) override {
@@ -61,8 +60,6 @@ protected:
     std::shared_ptr<SockInfo> getOriginSock(mediakit::MediaSource &sender) const override;
 
     ///////MediaSinkInterface override///////
-    void resetTracks() override {};
-    void addTrackCompleted() override;
     bool addTrack(const Track::Ptr &track) override;
     bool inputFrame(const Frame::Ptr &frame) override;
 
@@ -84,7 +81,6 @@ private:
     TSMediaSource::RingType::RingReader::Ptr _ts_reader;
     // for pusher
     MultiMediaSourceMuxer::Ptr _muxer;
-    DecoderImp::Ptr _decoder;
     std::recursive_mutex _func_mtx;
     std::deque<std::function<void()>> _cached_func;
 };
