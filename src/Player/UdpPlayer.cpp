@@ -84,9 +84,14 @@ void UdpPlayer::play_l(const string &url) {
     DebugL << "start play: " << url;
     _sock = Socket::createSocket(_poller, false);
     std::weak_ptr<UdpPlayer> weak_self = shared_from_this();
-    _sock->setOnRead([weak_self](const Buffer::Ptr &buf, struct sockaddr *, int) {
+    _sock->setOnMultiRead([weak_self](Buffer::Ptr *buf, struct sockaddr_storage *, size_t count) {
         if (auto strong_self = weak_self.lock()) {
-            strong_self->onData(buf);
+            for (auto i = 0u; i < count; ++i) {
+                auto &ptr = *(buf + i);
+                strong_self->onData(ptr);
+                // 声明已经被转义拷贝走
+                ptr = nullptr;
+            }
         }
     });
 
@@ -147,7 +152,7 @@ void UdpPlayer::onData(const toolkit::Buffer::Ptr &buf) {
     if (_rtp_decoder) {
         handleOneRtp(0, TrackVideo, 90000, (uint8_t *)buf->data(), buf->size());
     } else {
-        onTSPacket_l(buf, 0, false);
+        onTSPacket_l(buf, 0, true);
     }
 }
 
