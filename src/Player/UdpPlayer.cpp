@@ -100,12 +100,14 @@ void UdpPlayer::play_l(const string &url) {
         if (!_sock->bindUdpSock(port, local_ip)) {
             throw SockException(Err_other, StrPrinter << "bind upd socket[" << local_ip << ":" << port << "] failed: " << toolkit::get_uv_errmsg());
         }
+        SockUtil::setRecvBuf(_sock->rawFD(), 1024 * 1024);
         return;
     }
 
     if (!_sock->bindUdpSock(port, ip)) {
         throw SockException(Err_other, StrPrinter << "bind upd socket[" << ip << ":" << port << "] failed: " << toolkit::get_uv_errmsg());
     }
+    SockUtil::setRecvBuf(_sock->rawFD(), 1024 * 1024);
     if (-1 == SockUtil::joinMultiAddr(_sock->rawFD(), ip.data(), local_ip.data())) {
         throw SockException(Err_other, StrPrinter << "join multicast address[" << ip << "/" << local_ip << "] failed: " << toolkit::get_uv_errmsg());
     }
