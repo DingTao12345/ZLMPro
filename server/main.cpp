@@ -23,6 +23,7 @@
 #include "Rtmp/RtmpSession.h"
 #include "Shell/ShellSession.h"
 #include "Http/WebSocketSession.h"
+#include "Player/PlayerProxy.h"
 #include "Rtp/RtpServer.h"
 #include "WebApi.h"
 #include "WebHook.h"
@@ -487,6 +488,24 @@ int start_main(int argc,char *argv[]) {
             return 30  * 60 * 1000;
         });
 #endif
+        auto file = File::loadFile((exeDir() + "playlist.txt").data());
+        auto lines = toolkit::split(file, "\n");
+
+        map<string, PlayerProxy::Ptr> proxyMap;
+        ProtocolOption option;
+
+        for (auto &line : lines) {
+            auto vec = toolkit::split(trim(line), " ");
+            if (vec.size() < 2) {
+                continue;
+            }
+            PlayerProxy::Ptr player(new PlayerProxy(MediaTuple { DEFAULT_VHOST, "live", vec[0] }, option));
+            player->play(vec[1]);
+            proxyMap.emplace(vec[0], player);
+            // 休眠后再启动下一个拉流代理，防止短时间海量链接
+            usleep(1000 * 10);
+        }
+
         sem.wait();
     }
     unInstallWebApi();
