@@ -154,7 +154,7 @@ void SrtPlayerImp::onSRTData(SRT::DataPacket::Ptr pkt) {
 	}
 
 	if (!_decoder && _demuxer) {
-		_decoder = DecoderImp::createDecoder(DecoderImp::decoder_ts, _demuxer.get());
+		_decoder = DecoderImp::createDecoder(CodecTS, _demuxer.get());
 	}
 
     if (_decoder && _demuxer) {

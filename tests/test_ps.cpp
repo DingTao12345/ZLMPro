@@ -81,7 +81,7 @@ static bool loadFile(const char *path, const EventPoller::Ptr &poller) {
     fread(text, sizeof(char), lSize, fp);
 
     PsProcess::Ptr  ps_process = std::make_shared<PsProcess>();
-    DecoderImp::Ptr ps_decoder = DecoderImp::createDecoder(DecoderImp::decoder_ps, ps_process.get());
+    DecoderImp::Ptr ps_decoder = DecoderImp::createDecoder(CodecPS, ps_process.get());
     if (ps_decoder) {
         ps_decoder->input(text, lSize);
     }
